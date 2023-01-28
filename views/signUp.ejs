@@ -1,0 +1,65 @@
+<%- include('partials/header'); -%>
+<form>
+    <h2>SignUp</h2>
+    <label for="fName">First Name</label>
+    <input type="text" name="fName" id="fName" required>
+
+    <label for="midName">Middle Name</label>
+    <input type="text" name="midName" id="midName">
+    
+    <label for="lName">Last Name</label>
+    <input type="text" name="lName" id="lName" required>
+    
+    <label for="email">Email address</label>
+    <input type="email" name="email" id="email" required>
+    <div class="email error"></div>
+    
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" required>
+    <div class="password error"></div>
+    
+    <button>Sign Up</button>
+</form>
+
+<script>
+    let form = document.querySelector('form');
+    let emailError = document.querySelector('.email.error');
+    let passwordError = document.querySelector('.password.error');
+
+    form.addEventListener('submit',async (e)=>{
+        e.preventDefault();
+        //reset errors
+        emailError.textContent = "";
+        passwordError.textContent = "";
+        //
+        let fName = form.fName.value
+        let lName = form.lName.value
+        let midName = form.midName.value==""?null:form.midName.value
+        let email = form.email.value
+        let password = form.password.value
+    
+        try {
+            let newUser = await fetch('/signup',{
+                method: 'post',
+                body:JSON.stringify({
+                    firstName: fName,
+                    lastName: lName,
+                    middleName: midName,
+                    email,
+                    password
+                }),
+                headers:{'Content-type' : 'application/json'}
+            })
+            const data = await newUser.json();
+            if(data.errCode == "emailError")
+                emailError.textContent = data.Message;
+            else if(data.errCode == "password")
+                passwordError.textContent = data.Message;
+            if(data.user)
+                location.assign('/');
+        } catch (error) {
+            console.log(error);
+        }
+    })
+</script>
+<%- include('partials/footer'); -%>
